@@ -83,6 +83,7 @@ def start_session():
     return home_timeline
 
 
-
-start_session()
+scheduler = BlockingScheduler()
+scheduler.add_job(start_session, 'interval', hours=24)
+scheduler.start()
 os.system("python get_category_json.py " + screen_name)
