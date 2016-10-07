@@ -53,7 +53,9 @@ def json_write_tweets_data(content):
             data['text'] = tweet['text']
             data['favorite_count'] = tweet['favorite_count']
             data['retweet_count'] = tweet['retweet_count']
-            data['created_at'] = tweet['created_at']
+            dt = datetime.strptime(tweet['created_at'],
+                                   '%a %b %d %H:%M:%S +0000 %Y')
+            data['created_at'] = datetime.strftime(dt, '%Y-%m-%d %H:%M:%S.%f')
             data['id'] = tweet['id']
             data['source'] = tweet['source']
             all_data.append(data)
@@ -61,16 +63,12 @@ def json_write_tweets_data(content):
     with open(file_name, 'w') as f:
         json.dump(all_data, f, indent=1)
     f.close()
-    print count
 
 
 def create_newfile():
     """Function to create new file based on time."""
-    newpath = r'' + screen_name
-    if not os.path.exists(newpath):
-        os.makedirs(newpath)
-    date = datetime.today().strftime('%m_%d_%Y').replace(" ", "_")
-    file_name = newpath + '/' + date + ".json"
+    date = datetime.today().strftime('%d_%m_%Y').replace(" ", "_")
+    file_name = screen_name + '_' + date + ".json"
     with io.FileIO(file_name, "w") as file:
         file.write("Json")
         file.close()
@@ -83,7 +81,10 @@ def start_session():
     return home_timeline
 
 
-scheduler = BlockingScheduler()
-scheduler.add_job(start_session, 'interval', hours=24)
-scheduler.start()
-os.system("python get_category_json.py " + screen_name)
+if __name__ == "__main__":
+    """Main function."""
+    scheduler = BlockingScheduler()
+    scheduler.add_job(start_session, 'interval', hours=24)
+    scheduler.start()
+    os.system("python get_category_json.py " + screen_name)
+    pass
